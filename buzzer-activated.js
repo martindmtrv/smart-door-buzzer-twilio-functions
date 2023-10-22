@@ -9,17 +9,27 @@ exports.handler = function(context, event, callback) {
 
   let twiml = new Twilio.twiml.VoiceResponse();
 
-  // Gather both speech and digit entry from user
-  twiml.gather({
-    action: '/door-open',
-    hints: context.PASSPHRASE,
-    input: 'speech dtmf',
-    numDigits: '4',
-    speechTimeout: 'auto',
-    timeout: 2,
-  })
-    .say({voice: 'woman'}, 'Please wait')  
+  console.log(event);
 
-  twiml.redirect('/call-residents')
-  callback(null, twiml)  
-}
+  // reject the call if it does not come from the callbox
+  if (!event.From.includes(context.BUZZER_PHONE)) {
+    twiml.reject();
+    callback(null, twiml);
+    return;
+  }
+
+  // Gather both speech and digit entry from user
+  twiml
+    .gather({
+      action: '/door-open',
+      hints: context.PASSPHRASE,
+      input: 'speech dtmf',
+      numDigits: '4',
+      speechTimeout: 'auto',
+      timeout: 2,
+    })
+    .say({voice: 'woman'}, 'Enter code, or hold');
+
+  twiml.redirect('/call-residents');
+  callback(null, twiml);
+};
