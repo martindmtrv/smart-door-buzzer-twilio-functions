@@ -21,5 +21,6 @@ exports.handler = function(context, event, callback) {
 		body: bodyText,
 	})
 		.then(res => callback(null, twiml))
-		.catch(err => callback(err, null));
+		// even if we error then we should just end the call normally
+		.catch(err => callback(null, twiml));
 };
