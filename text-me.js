@@ -16,7 +16,7 @@ exports.handler = function(context, event, callback) {
 	}
 
 	// send webhook to ntfy
-	fetch("https://ntfy.chromart.dynv6.net/buzzer", {
+	fetch(`https://${context.NTFY_DOMAIN}/buzzer`, {
 		method: "POST",
 		body: bodyText,
 	})
