@@ -9,8 +9,8 @@ exports.handler = function(context, event, callback) {
 
 	let bodyText;
 
-	if (event.Method == 'code') {
-		bodyText = 'Someone used the password to get in the building.';
+	if (event.Method == 'doorman') {
+		bodyText = 'Someone used doorman to get in the building.';
 	} else {
 		bodyText = 'Somebody buzzed the door but didn\'t know the passcode.';
 	}

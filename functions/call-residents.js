@@ -15,5 +15,5 @@ exports.handler = function(context, event, callback) {
     dial.number(context.MARTIN_PHONE);
   }
    
-  callback(null, twiml)  
+  callback(null, twiml);
 }
