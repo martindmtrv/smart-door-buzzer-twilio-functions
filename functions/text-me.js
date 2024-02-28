@@ -13,6 +13,8 @@ exports.handler = function(context, event, callback) {
 		bodyText = 'Doorman buzzed someone up!';
 		const fingerprint = JSON.parse(event.fingerprint);
 		bodyText += `\n\n${JSON.stringify(fingerprint, null, 4)}`;
+	} else if (event.Method == 'doorman-time-lock') {
+		bodyText = 'Doorman rejected a buzzer call due to time restriction';
 	} else if (event.Method == 'call') {
 		bodyText = 'Somebody buzzed the door and it dialed through to a phone.';
 	}

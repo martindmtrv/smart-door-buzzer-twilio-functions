@@ -24,21 +24,26 @@ exports.handler = function(context, event, callback) {
   const interval = setInterval(() => {
     fetch(context.DOORMAN)
       .then(async res => {
-        if (res.status === 200) {
+        // handle the case where doorman is explictly rejecting the buzzer
+        if (res.status === 410) {
           clearInterval(interval);
+          twiml.redirect('/text-me?method=doorman-time-lock');
+          callback(null, twiml);
+        } 
+        
+        // we got the successful unlock
+        else if (res.status === 200) {
+          clearInterval(interval);
+          
           const body = await res.json();
-
           twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}`);
-          // clear the existing door status (this is best effort)
-          await fetch(context.DOORMAN, { method: "DELETE" });
-
           callback(null, twiml);
         }
       })
       .catch(err => console.log(err));
   }, 500);
 
-  // redirect to call if no poll success
+  // redirect to call after 6s
   setTimeout(() => {
     twiml.redirect('/call-residents');
     callback(null, twiml);
