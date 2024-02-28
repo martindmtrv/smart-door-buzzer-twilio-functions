@@ -10,9 +10,11 @@ exports.handler = function(context, event, callback) {
 	let bodyText;
 
 	if (event.Method == 'doorman') {
-		bodyText = 'Someone used doorman to get in the building.';
-	} else {
-		bodyText = 'Somebody buzzed the door but didn\'t know the passcode.';
+		bodyText = 'Doorman buzzed someone up!';
+		const fingerprint = JSON.parse(event.fingerprint);
+		bodyText += `\n\n${JSON.stringify(fingerprint, null, 4)}`;
+	} else if (event.Method == 'call') {
+		bodyText = 'Somebody buzzed the door and it dialed through to a phone.';
 	}
 
 	// send webhook to ntfy

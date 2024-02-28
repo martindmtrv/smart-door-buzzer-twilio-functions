@@ -23,10 +23,14 @@ exports.handler = function(context, event, callback) {
   // poll Doorman, to see if we should unlock
   setInterval(() => {
     fetch(context.DOORMAN)
-      .then(res => {
+      .then(async res => {
         if (res.status === 200) {
-          // TODO: pass along auth / ip information of who opened the door?
-          twiml.redirect('/door-open');
+          const body = await res.json();
+
+          // clear the existing door status
+          await fetch(context.DOORMAN, { method: "DELETE" });
+
+          twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}`);
           callback(null, twiml);
         }
       })
