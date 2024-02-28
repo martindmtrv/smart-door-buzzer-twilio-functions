@@ -41,5 +41,5 @@ exports.handler = function(context, event, callback) {
   setTimeout(() => {
     twiml.redirect('/call-residents');
     callback(null, twiml);
-  }, 6000);
+  }, 8000);
 };
