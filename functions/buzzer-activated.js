@@ -21,16 +21,17 @@ exports.handler = function(context, event, callback) {
   }
 
   // poll Doorman, to see if we should unlock
-  setInterval(() => {
+  const interval = setInterval(() => {
     fetch(context.DOORMAN)
       .then(async res => {
         if (res.status === 200) {
+          clearInterval(interval);
           const body = await res.json();
 
-          // clear the existing door status
+          twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}`);
+          // clear the existing door status (this is best effort)
           await fetch(context.DOORMAN, { method: "DELETE" });
 
-          twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}`);
           callback(null, twiml);
         }
       })
@@ -41,5 +42,5 @@ exports.handler = function(context, event, callback) {
   setTimeout(() => {
     twiml.redirect('/call-residents');
     callback(null, twiml);
-  }, 8000);
+  }, 6000);
 };
