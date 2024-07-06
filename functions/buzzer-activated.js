@@ -7,14 +7,18 @@
  */
 const fetch = require('node-fetch');
 
-exports.handler = function(context, event, callback) {
+exports.handler = async function(context, event, callback) {
 
   let twiml = new Twilio.twiml.VoiceResponse();
 
-  console.log(event);
+  let config = await fetch(context.DOORMAN_URL + `/api/door/info?buzzer=${event.From}`)
+    .then(res => res.json())
+    .catch(err => {
+      return undefined;
+    });
 
-  // reject the call if it does not come from the callbox and did not come from my number for testing
-  if (!event.From.includes(context.BUZZER_PHONE) && !event.From.includes(context.MARTIN_PHONE)) {
+  // reject the call if this is not configured
+  if (!config || !config.door) {
     twiml.reject();
     callback(null, twiml);
     return;
@@ -22,7 +26,7 @@ exports.handler = function(context, event, callback) {
 
   // poll Doorman, to see if we should unlock
   const interval = setInterval(() => {
-    fetch(context.DOORMAN)
+    fetch(context.DOORMAN_URL + `/api/door/status?door=${config.door}`)
       .then(async res => {
         // handle the case where doorman is explictly rejecting the buzzer
         if (res.status === 410) {
@@ -45,7 +49,7 @@ exports.handler = function(context, event, callback) {
 
   // redirect to call after 6s
   setTimeout(() => {
-    twiml.redirect('/call-residents');
+    twiml.redirect(`/call-residents?numbers=${encodeURIComponent(config.fallbackNumbers)}`);
     callback(null, twiml);
   }, 6000);
 };

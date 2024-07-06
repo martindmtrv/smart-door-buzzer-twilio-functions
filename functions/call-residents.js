@@ -3,17 +3,16 @@
  */
 exports.handler = function(context, event, callback) {
   let twiml = new Twilio.twiml.VoiceResponse();
-  
+
+  // numbers are passed in
+  let numbers = event.numbers.split(',');
+
   // If no valid answer after timeout, dial all residents until someone picks up
   let dial = twiml.dial({action: '/text-me?Method=call', timeLimit: 20, timeout: 20});
 
-  if (!event.From.includes(context.GRACIE_PHONE)) {
-    dial.number(context.GRACIE_PHONE);
-  }
-
-  if (!event.From.includes(context.MARTIN_PHONE)) {
-    dial.number(context.MARTIN_PHONE);
-  }
+  numbers.forEach(number => {
+    dial.number(number);
+  });
    
-  callback(null, twiml);
+  return callback(null, twiml);
 }
