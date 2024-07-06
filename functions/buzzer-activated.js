@@ -24,6 +24,8 @@ exports.handler = async function(context, event, callback) {
     return;
   }
 
+  const promise = new Promise(() => null, () => null);
+
   // poll Doorman, to see if we should unlock
   const interval = setInterval(() => {
     fetch(context.DOORMAN_URL + `/api/door/status?door=${config.door}`)
@@ -33,6 +35,7 @@ exports.handler = async function(context, event, callback) {
           clearInterval(interval);
           twiml.redirect('/text-me?method=doorman-time-lock');
           callback(null, twiml);
+          promise.resolve();
         } 
         
         // we got the successful unlock
@@ -42,6 +45,7 @@ exports.handler = async function(context, event, callback) {
           const body = await res.json();
           twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}`);
           callback(null, twiml);
+          promise.resolve();
         }
       })
       .catch(err => console.log(err));
@@ -51,5 +55,9 @@ exports.handler = async function(context, event, callback) {
   setTimeout(() => {
     twiml.redirect(`/call-residents?numbers=${encodeURIComponent(config.fallbackNumbers)}`);
     callback(null, twiml);
+    promise.resolve();
   }, 6000);
+
+  await promise;
+  return callback(null, twiml);
 };
