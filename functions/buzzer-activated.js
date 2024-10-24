@@ -43,7 +43,7 @@ exports.handler = async function(context, event, callback) {
           clearInterval(interval);
           
           const body = await res.json();
-          twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}`);
+          twiml.redirect(`/door-open?fingerprint=${encodeURIComponent(JSON.stringify(body))}&pressKey=${config.pressKey}`);
           callback(null, twiml);
           promise.resolve();
         }
